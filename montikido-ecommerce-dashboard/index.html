@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Montikido · E-commerce dashboard</title>
+<meta name="description" content="Montikido e-commerce performance dashboard, 2026 YTD">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f1eb;--panel:#fffdfa;--ink:#18231f;--muted:#6e7772;--line:#ddd9d1;--green:#315b49;--sage:#dce7df;--sand:#eee6d8;--dark:#21352d;--warn:#8b5e34;--shadow:0 12px 30px rgba(32,45,39,.07)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:1480px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}
+.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:var(--green);font-weight:800}.h1{font-family:Georgia,serif;font-size:42px;line-height:1;margin:7px 0 8px}.sub{color:var(--muted);font-size:14px}
+.badge{background:var(--dark);color:#fff;padding:11px 14px;border-radius:999px;font-size:12px;white-space:nowrap}
+.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(6,minmax(0,1fr));margin-bottom:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.kpi{padding:18px}.kpi .label{font-size:12px;color:var(--muted);margin-bottom:9px}.kpi .value{font-size:26px;font-weight:800;letter-spacing:-.03em}.kpi .note{margin-top:7px;font-size:11px;color:var(--muted)}
+.row2{grid-template-columns:1.4fr 1fr;margin-bottom:14px}.row3{grid-template-columns:1.2fr 1fr 1fr;margin-bottom:14px}
+.panel{padding:20px}.panel h2{font-size:16px;margin:0}.panelhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.small{font-size:11px;color:var(--muted)}
+.chartbox{height:315px}.chartbox.sm{height:270px}
+.tablewrap{overflow:auto;max-height:470px;border-top:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:11px 10px;border-bottom:1px solid #ebe7df;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{position:sticky;top:0;background:var(--panel);color:var(--muted);font-weight:700;z-index:1}
+td:first-child{max-width:410px;overflow:hidden;text-overflow:ellipsis}.pill{display:inline-flex;padding:5px 8px;border-radius:999px;background:var(--sage);font-size:11px}
+.section{margin:28px 0 10px;display:flex;justify-content:space-between;align-items:flex-end}.section h3{font-family:Georgia,serif;font-size:24px;margin:0}.section p{margin:0;color:var(--muted);font-size:12px}
+.callout{display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--sand);border:1px solid #ded2bd;border-radius:16px;font-size:12px;line-height:1.5}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--warn);margin-top:4px;flex:none}.footer{padding:24px 0 8px;color:var(--muted);font-size:11px}
+.googlebox{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.mini{background:#f7f4ee;padding:12px;border-radius:12px}.mini b{display:block;font-size:18px;margin-top:5px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.row2,.row3{grid-template-columns:1fr}.googlebox{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.wrap{padding:16px}.top{display:block}.badge{display:inline-block;margin-top:14px}.h1{font-size:34px}.kpis{grid-template-columns:repeat(2,1fr)}.kpi .value{font-size:22px}.chartbox{height:260px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><div class="eyebrow">Montikido · Ecommerce intelligence</div><div class="h1">2026 performance dashboard</div><div class="sub">GA4 + Google Ads · 2026-01-01 → 2026-10-05 · Windsor.ai snapshot</div></div>
+    <div class="badge">GA4 property 523822162</div>
+  </header>
+
+  <section class="grid kpis" id="kpis"></section>
+
+  <section class="grid row2">
+    <div class="card panel"><div class="panelhead"><div><h2>Revenue & purchases by month</h2><div class="small">E-commerce revenue and completed purchases</div></div><span class="pill">YTD</span></div><div class="chartbox"><canvas id="revChart"></canvas></div></div>
+    <div class="card panel"><div class="panelhead"><div><h2>Sessions & conversion rate</h2><div class="small">Traffic quality over time</div></div></div><div class="chartbox"><canvas id="sessionChart"></canvas></div></div>
+  </section>
+
+  <div class="section"><div><h3>Acquisition</h3><p>Which sources actually bring revenue</p></div></div>
+  <section class="grid row2">
+    <div class="card panel"><div class="panelhead"><div><h2>Revenue by source / medium</h2><div class="small">Top sources by attributed purchase revenue</div></div></div><div class="chartbox"><canvas id="sourceChart"></canvas></div></div>
+    <div class="card panel"><div class="panelhead"><div><h2>Source / medium detail</h2><div class="small">Full-period session attribution</div></div></div><div class="tablewrap"><table id="sourceTable"></table></div></div>
+  </section>
+
+  <div class="section"><div><h3>Markets & audience</h3><p>Country, device and customer type</p></div></div>
+  <section class="grid row3">
+    <div class="card panel"><div class="panelhead"><div><h2>Revenue by country</h2><div class="small">Top markets by purchase revenue</div></div></div><div class="chartbox sm"><canvas id="countryChart"></canvas></div></div>
+    <div class="card panel"><div class="panelhead"><div><h2>Device performance</h2><div class="small">Sessions vs. commerce outcomes</div></div></div><div class="tablewrap"><table id="deviceTable"></table></div></div>
+    <div class="card panel"><div class="panelhead"><div><h2>New vs returning</h2><div class="small">Returning users drive a disproportionate share of revenue</div></div></div><div class="tablewrap"><table id="nrTable"></table></div></div>
+  </section>
+
+  <div class="section"><div><h3>Website behaviour</h3><p>Landing page efficiency and monthly engagement</p></div></div>
+  <section class="grid row2">
+    <div class="card panel"><div class="panelhead"><div><h2>Monthly performance</h2><div class="small">Revenue, AOV, conversion and engagement</div></div></div><div class="tablewrap"><table id="monthlyTable"></table></div></div>
+    <div class="card panel"><div class="panelhead"><div><h2>Top landing pages</h2><div class="small">Pages with meaningful traffic, sorted by revenue</div></div></div><div class="tablewrap"><table id="landingTable"></table></div></div>
+  </section>
+
+  <div class="section"><div><h3>Paid media</h3><p>Platform data where connector access is available</p></div></div>
+  <section class="grid row2">
+    <div class="card panel"><div class="panelhead"><div><h2>Google Ads</h2><div class="small">Montikido account 400-535-0423 · platform-reported values</div></div></div><div class="googlebox" id="googleKpis"></div><div class="tablewrap"><table id="googleTable"></table></div></div>
+    <div class="card panel">
+      <div class="panelhead"><div><h2>Meta Ads</h2><div class="small">Traffic is visible in GA4, platform connector is not yet connected</div></div><span class="pill" style="background:#f3e3d4;color:#7a4f2d">Connector missing</span></div>
+      <div class="callout"><span class="dot"></span><div><b>GA4 already attributes purchases to Meta-tagged traffic.</b><br>However, campaign spend, platform purchases, CPA and ROAS cannot be shown reliably until the Montikido Meta Ads account is connected to Windsor.ai. No estimated values are inserted here.</div></div>
+      <div style="margin-top:18px" class="small">Notable GA4-attributed Meta sources include <b>META_ads / Aud.sugg. parents…</b>, <b>fb / LT - CBO | Sales</b> and <b>ig / LT - CBO | Sales</b>.</div>
+    </div>
+  </section>
+
+  <div class="section"><div><h3>Data notes</h3></div></div>
+  <div class="callout"><span class="dot" style="background:#315b49"></span><div>January contains no GA4 rows in the connected property for this report range, so the visible monthly series begins in February. October is partial through October 5. GA4 and Google Ads attribution models can differ, so platform conversion value and GA4 purchase revenue should not be expected to match one-to-one.</div></div>
+  <div class="footer">Source: Windsor.ai connected Montikido GA4 and Google Ads accounts. Snapshot generated 2026-10-05.</div>
+</div>
+
+<script>
+const summary={sessions:14708,active_users:11241,newusers:11165,purchases:41,revenue:6485.65,bounce:0.2304,eng:30.8584,avgSession:130.8769};
+const monthly=[
+{m:"Feb",sessions:335,users:212,newusers:212,purchases:0,revenue:0,bounce:.4,eng:80.8269,avgSession:366.6777},
+{m:"Mar",sessions:1099,users:645,newusers:631,purchases:1,revenue:282.1,bounce:.384,eng:63.3458,avgSession:323.2535},
+{m:"Apr",sessions:1758,users:1303,newusers:1283,purchases:3,revenue:452.22,bounce:.2139,eng:26.2304,avgSession:134.8528},
+{m:"May",sessions:1833,users:1488,newusers:1419,purchases:6,revenue:1419.24,bounce:.2144,eng:20.9531,avgSession:98.9712},
+{m:"Jun",sessions:1499,users:1273,newusers:1234,purchases:4,revenue:717.6,bounce:.2522,eng:22.4049,avgSession:93.6723},
+{m:"Jul",sessions:2227,users:1834,newusers:1778,purchases:7,revenue:824.31,bounce:.1877,eng:28.7458,avgSession:115.539},
+{m:"Aug",sessions:2739,users:2170,newusers:2083,purchases:9,revenue:1343.42,bounce:.1804,eng:28.4173,avgSession:100.7151},
+{m:"Sep",sessions:2871,users:2307,newusers:2230,purchases:10,revenue:1267.66,bounce:.2417,eng:28.938,avgSession:104.8442},
+{m:"Oct*",sessions:394,users:327,newusers:286,purchases:1,revenue:179.1,bounce:.335,eng:35.1244,avgSession:256.863}
+];
+const sources=[
+["google / cpc",3339,2767,10,1468.97,.1539,39.2189],["(direct) / (none)",2243,1913,8,983.09,.2737,23.5751],["fb / LT - CBO | Sales",1539,1135,5,612.09,.2092,22.8707],["google / organic",1509,795,6,1184.71,.169,62.1551],["META_ads / Aud.sugg. parents - adv.pl. - minkšti blokai -10%",1430,1082,3,870.38,.3063,14.8566],["l.instagram.com / referral",925,860,0,0,.1438,13.6995],["ig / LT - CBO | Sales",696,532,2,194.58,.3549,16.6178],["ig / social",663,577,0,0,.0995,43.0603],["facebook / paid",335,292,0,0,.3821,9.2239],["(not set)",296,224,2,380.5,.4628,37.2703],["chatgpt.com / ai-assistant",253,233,0,0,.1186,16.0395],["Meta / Interests 25+ - adv. pl. - 3in1",225,162,0,0,.5822,15.3422],["facebook.com / referral",189,184,0,0,.1058,15.9683],["m.facebook.com / referral",179,154,1,191.33,.3296,22.8492],["Meta / Broad 25+ - adv. pl. - 3in1",172,147,0,0,.5756,9.2093]
+];
+const countries=[
+["Lithuania",11125,8001,37,5876.62,.2201,35.4244],["Germany",944,827,3,389.94,.3496,29.5169],["United States",908,905,0,0,.1828,6.8458],["(not set)",165,165,0,0,.2545,.8788],["China",98,95,0,0,.2449,10.8571],["United Kingdom",93,91,0,0,.2796,10.1505],["Finland",91,90,0,0,.8791,4.8132],["Norway",91,57,0,0,.1209,38.6593],["Sweden",85,82,1,219.09,.1294,14.8824],["Ireland",83,82,0,0,.1928,8.1446],["Poland",82,67,0,0,.3902,40.7805],["Austria",55,48,0,0,.2909,46.0545],["Netherlands",54,45,0,0,.1481,18.3333],["Latvia",45,39,0,0,.2,22.8889],["Spain",40,36,0,0,.1,20.025]
+];
+const devices=[["mobile",11872,9096,32,5149.63,.2236,28.0929],["desktop",2671,2089,9,1336.02,.2553,44.2284],["tablet",54,46,0,0,.5,40.963]];
+const nr=[["new",11177,11235,19,2709.66,.2298,25.1229],["returning",3270,1349,22,3775.99,.1636,52.9168],["(not set)",324,0,0,0,.9815,0]];
+const landings=[
+["/",3294,11,1573.54,.1691,45.2574],["/collections/active-play-kids-furniture",1033,0,0,.1626,42.0639],["/en",834,1,201.4,.1439,43.211],["/collections/sale",562,1,219.09,.3007,32.911],["/collections/montessori-educational-toys",508,2,420.05,.1457,36.3681],["/en/collections/sale",423,0,0,.3262,16.9125],["/products/meowbaby®-playset-with-ball-pit-turquoise-mint-white-pearl",404,2,393.17,.3119,18.6856],["/products/leg-go-balance-bike-3in1",323,0,0,.517,13.6068],["/products/soft-play-7-foam-block-set-pastel-turquoise-discoverer",163,2,380.5,.2393,30.5521],["/products/soft-play-8-foam-block-set-pastel-pink-adventurer",131,2,392.73,.2977,23.6031],["/en/collections/active-play-kids-furniture",109,1,164.68,.1651,56.5138],["/products/soft-play-6-foam-block-set-pastel-turquoise-explorer",69,1,169.9,.2609,20.8116],["/cart",48,2,358.2,.1042,23.9792],["/products/toddler-puffer-booties-woodland",46,1,117.34,.1522,26.413],["/products/soft-play-6-foam-block-set-pastel-pink-explorer",40,3,683.66,.25,23.275],["/en/products/soft-play-6-foam-block-set-beige-explorer",37,1,169.94,.2162,11.8108],["/en/products/soft-play-7-foam-block-set-pastel-pink-discoverer",33,1,179.13,.2121,29.2121],["/products/meowbaby-green-velvet-foam-play-set-with-ball-pit-gold-beige-white-transparent-balls",33,1,199.68,.1212,27.9697],["/de/products/soft-play-rocking-toy-yellow-banana",32,1,91.96,.1562,59.5],["/products/ball-pit-balls-200pcs-blue-turquoise-transparent-white",26,1,365.82,.3077,35.8462]
+];
+const google=[
+["Jun","VL | Search - Keyword test | '26.06.04",5818,608,271.8701,1,201.4,.1045,.4471],["Jul","VL | Search - Keyword test | '26.06.04",5160,708,339.8959,1,201.4,.1372,.4801],["Aug","VL | Search - Keyword test | '26.06.04",4489,645,305.3964,2,369.62,.1437,.4735],["Aug","Brand Protection - RSA",55,32,2.6967,1,39.52,.5818,.0843],["Sep","VL | Search - Keyword test | '26.06.04",4355,598,207.2743,1,179.1,.1373,.3466],["Sep","Brand Protection - RSA",90,52,4.475,3,381.35,.5778,.0861],["Sep","DE - Shopping",28112,336,156.79,1,96.58,.012,.4666],["Sep","VL| Search - DE",1072,67,24.09,0,0,.0625,.3595],["Oct*","VL | Search - Keyword test | '26.06.04",367,70,25.7558,0,0,.1907,.3679],["Oct*","Brand Protection - RSA",17,10,.5,1,179.1,.5882,.05],["Oct*","VL| Search - DE",616,41,12.91,0,0,.0666,.3149]
+];
+const eur=n=>new Intl.NumberFormat("lt-LT",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n);
+const num=n=>new Intl.NumberFormat("lt-LT").format(Math.round(n));
+const pct=n=>(n*100).toFixed(2)+"%"; const sec=n=>Math.round(n)+" s";
+const aov=(r,p)=>p?eur(r/p):"—"; const cvr=(p,s)=>s?pct(p/s):"—";
+document.getElementById("kpis").innerHTML=[
+["Revenue",eur(summary.revenue),"GA4 purchase revenue"],["Purchases",num(summary.purchases),"Completed ecommerce purchases"],["AOV",aov(summary.revenue,summary.purchases),"Revenue / purchases"],["Sessions",num(summary.sessions),"All website sessions"],["E-com CVR",cvr(summary.purchases,summary.sessions),"Purchases / sessions"],["Bounce rate",pct(summary.bounce),"GA4 non-engaged sessions"],["Active users",num(summary.active_users),"Distinct active users"],["New users",num(summary.newusers),"First-time users"],["Avg engagement",sec(summary.eng),"Per session"],["Avg session duration",sec(summary.avgSession),"GA4 session duration"]
+].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><div class="note">'+x[2]+'</div></div>').join("");
+Chart.defaults.font.family='Inter, ui-sans-serif, system-ui';Chart.defaults.color='#6e7772';Chart.defaults.borderColor='#e6e1d8';
+new Chart(document.getElementById("revChart"),{data:{labels:monthly.map(x=>x.m),datasets:[{type:"bar",label:"Revenue",data:monthly.map(x=>x.revenue),yAxisID:"y"},{type:"line",label:"Purchases",data:monthly.map(x=>x.purchases),yAxisID:"y1",tension:.3,borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true,ticks:{callback:v=>"€"+v}},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{precision:0}}}}});
+new Chart(document.getElementById("sessionChart"),{data:{labels:monthly.map(x=>x.m),datasets:[{type:"bar",label:"Sessions",data:monthly.map(x=>x.sessions),yAxisID:"y"},{type:"line",label:"CVR",data:monthly.map(x=>x.purchases/x.sessions*100),yAxisID:"y1",tension:.3,borderWidth:2}]},options:{maintainAspectRatio:false,plugins:{legend:{position:"bottom"}},scales:{y:{beginAtZero:true},y1:{beginAtZero:true,position:"right",grid:{drawOnChartArea:false},ticks:{callback:v=>v+"%"}}}}});
+const topSources=[...sources].sort((a,b)=>b[4]-a[4]).filter(x=>x[4]>0).slice(0,8);
+new Chart(document.getElementById("sourceChart"),{type:"bar",data:{labels:topSources.map(x=>x[0]),datasets:[{label:"Revenue",data:topSources.map(x=>x[4])}]},options:{indexAxis:"y",maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{callback:v=>"€"+v}}}}});
+const revCountries=[...countries].filter(x=>x[4]>0).sort((a,b)=>b[4]-a[4]);
+new Chart(document.getElementById("countryChart"),{type:"doughnut",data:{labels:revCountries.map(x=>x[0]),datasets:[{data:revCountries.map(x=>x[4])}]},options:{maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+function table(id,head,rows){document.getElementById(id).innerHTML="<thead><tr>"+head.map(x=>"<th>"+x+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(x=>"<td>"+x+"</td>").join("")+"</tr>").join("")+"</tbody>"}
+table("sourceTable",["Source / medium","Sessions","Purch.","Revenue","CVR","Bounce","Eng."],sources.map(x=>[x[0],num(x[1]),num(x[3]),eur(x[4]),cvr(x[3],x[1]),pct(x[5]),sec(x[6])]));
+table("deviceTable",["Device","Sessions","Purch.","Revenue","CVR"],devices.map(x=>[x[0],num(x[1]),num(x[3]),eur(x[4]),cvr(x[3],x[1])]));
+table("nrTable",["Type","Sessions","Purch.","Revenue","CVR"],nr.map(x=>[x[0],num(x[1]),num(x[3]),eur(x[4]),cvr(x[3],x[1])]));
+table("monthlyTable",["Month","Sessions","Purch.","Revenue","AOV","CVR","Bounce","Eng."],monthly.map(x=>[x.m,num(x.sessions),num(x.purchases),eur(x.revenue),aov(x.revenue,x.purchases),cvr(x.purchases,x.sessions),pct(x.bounce),sec(x.eng)]));
+const landingSorted=[...landings].sort((a,b)=>b[3]-a[3]);
+table("landingTable",["Landing page","Sessions","Purch.","Revenue","CVR","Bounce"],landingSorted.map(x=>[x[0],num(x[1]),num(x[2]),eur(x[3]),cvr(x[2],x[1]),pct(x[4])]));
+const gSpend=google.reduce((s,x)=>s+x[4],0),gConv=google.reduce((s,x)=>s+x[5],0),gVal=google.reduce((s,x)=>s+x[6],0),gClicks=google.reduce((s,x)=>s+x[3],0);
+document.getElementById("googleKpis").innerHTML=[["Spend",eur(gSpend)],["Conv. value",eur(gVal)],["ROAS",(gVal/gSpend).toFixed(2)+"×"],["CPA",eur(gSpend/gConv)]].map(x=>'<div class="mini"><span class="small">'+x[0]+'</span><b>'+x[1]+'</b></div>').join("");
+table("googleTable",["Month","Campaign","Spend","Conv.","Value","ROAS","Clicks"],google.map(x=>[x[0],x[1],eur(x[4]),num(x[5]),eur(x[6]),x[4]? (x[6]/x[4]).toFixed(2)+"×":"—",num(x[3])]));
+</script>
+</body></html>
